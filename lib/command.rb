@@ -10,24 +10,24 @@ module VagrantPlugins
           machine.communicate.execute('oc get routes', sudo: false)  do |type, data|
             @result = data if type == :stdout
           end
-          case @result
-          when /NAME\s+HOST\/PORT\s+.*/
-            @env.ui.info("Updating hosts file with new hostnames:\n#{routes_hostnames(@result).join(', ')}")
-            ip = machine.ssh_info[:host]
-            update_hosts(routes_hostnames(@result), ip)
-          # We are not signed-in
-          when /.*the server has asked for the client to provide credentials.*/
-            @env.ui.error('You need to sign in and select a project first.')
-          # OpenShift is not installed on the guest
-          when /.*oc: command not found.*/
-            @env.ui.error('oc command not found on guest. Is OpenShift installed?')
-          # Command failed
-          when /.*Error.*/
-            @env.ui.error("oc command returned an error:\n")
-            @env.ui.error(result)
-          else
-            @env.ui.error('Unexpected error occured.')
-          end
+          @env.ui.info("Updating hosts file with new hostnames:\n#{routes_hostnames(@result).join(', ')}")
+          ip = machine.ssh_info[:host]
+          update_hosts(routes_hostnames(@result), ip)
+        end
+      rescue
+        case @result
+        # We are not signed-in
+        when /.*the server has asked for the client to provide credentials.*/
+          @env.ui.error('You need to sign in and select a project first.')
+        # OpenShift is not installed on the guest
+        when /.*oc: command not found.*/
+          @env.ui.error('oc command not found on guest. Is OpenShift installed?')
+        # Command failed
+        when /.*Error.*/
+          @env.ui.error("oc command returned an error:\n")
+          @env.ui.error(result)
+        else
+          @env.ui.error('Unexpected error occured.')
         end
       end
 
