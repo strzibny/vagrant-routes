@@ -19,7 +19,7 @@ module VagrantPlugins
         end
       rescue NoRoutesError
         @env.ui.error('No routes are defined.')
-      rescue
+      rescue => e
         case @result
         # We are not signed-in
         when /.*the server has asked for the client to provide credentials.*/
@@ -28,7 +28,7 @@ module VagrantPlugins
         when /.*oc: command not found.*/
           @env.ui.error('oc command was not found on guest. Is OpenShift installed?')
         else
-          @env.ui.error("Unexpected error occured:\n#{@result}")
+          @env.ui.error("Unexpected error occured:\n#{e.message}")
         end
       end
 
