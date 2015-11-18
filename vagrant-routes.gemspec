@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = 'vagrant-routes'
-  spec.version       = '0.0.2'
+  spec.version       = '0.0.3'
   spec.homepage      = 'https://github.com/strzibny/vagrant-routes'
   spec.summary       = 'Access OpenShift routes on the host'
 
