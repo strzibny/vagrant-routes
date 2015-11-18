@@ -1,5 +1,8 @@
 module VagrantPlugins
   module Routes
+    # Issue when `oc get routes` returns empty responce
+    class NoRoutesError < StandardError; end
+
     class Command < Vagrant.plugin(2, :command)
       def self.synopsis
         'Access OpenShift routes from the host'
@@ -14,6 +17,8 @@ module VagrantPlugins
           ip = machine.ssh_info[:host]
           update_hosts(routes_hostnames(@result), ip)
         end
+      rescue NoRoutesError
+        @env.ui.error('No routes are defined.')
       rescue
         case @result
         # We are not signed-in
@@ -68,11 +73,13 @@ module VagrantPlugins
       #   ruby20    ruby20-ruby-app.router.default.svc.cluster.local          ruby20    app=ruby20
       #   pyapp     pyapp-python.router.default.svc.cluster.local             pyapp     app=pyapp
       def routes_hostnames(output)
+        fail NoRoutesError unless output
         lines = output.split("\n")[1..-1]
         hostnames = []
         lines.each do |line|
           hostnames << line.split[1]
         end
+        fail NoRoutesError if hostnames.empty?
         hostnames
       end
 
