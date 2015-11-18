@@ -7,8 +7,8 @@ module VagrantPlugins
 
       def execute
         with_target_vms(nil, single_target: true) do |machine|
-          machine.communicate.execute('oc get routes', sudo: false)  do |type, data|
-            @result = data if type == :stdout
+          machine.communicate.execute('oc get routes', sudo: false) do |type, data|
+            @result = data
           end
           @env.ui.info("Updating hosts file with new hostnames:\n#{routes_hostnames(@result).join(', ')}")
           ip = machine.ssh_info[:host]
@@ -18,16 +18,12 @@ module VagrantPlugins
         case @result
         # We are not signed-in
         when /.*the server has asked for the client to provide credentials.*/
-          @env.ui.error('You need to sign in and select a project first.')
+          @env.ui.error('You need to sign in and select a project in OpenShift first.')
         # OpenShift is not installed on the guest
         when /.*oc: command not found.*/
-          @env.ui.error('oc command not found on guest. Is OpenShift installed?')
-        # Command failed
-        when /.*Error.*/
-          @env.ui.error("oc command returned an error:\n")
-          @env.ui.error(result)
+          @env.ui.error('oc command was not found on guest. Is OpenShift installed?')
         else
-          @env.ui.error('Unexpected error occured.')
+          @env.ui.error("Unexpected error occured:\n#{@result}")
         end
       end
 
