@@ -46,6 +46,9 @@ module VagrantPlugins
         # OpenShift is not installed on the guest
         when /.*oc: command not found.*/
           @env.ui.error('oc command was not found on guest. Is OpenShift installed?')
+        # Logged-in user has no privilage to list all routes
+        when /.*cannot list all routes in the cluster*/
+          @env.ui.error('You need to be logged in as cluster admin to expose all routes.')
         else
           @env.ui.error("Unexpected error occured:\n\n#{e.message}")
         end
