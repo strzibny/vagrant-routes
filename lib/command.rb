@@ -1,3 +1,5 @@
+require 'optparse'
+
 module VagrantPlugins
   module Routes
     # Issue when `oc get routes` returns empty responce
@@ -9,8 +11,25 @@ module VagrantPlugins
       end
 
       def execute
+        options = {}
+        options[:all] = ''
+
+        opts = OptionParser.new do |o|
+          o.banner = 'Usage: vagrant route [options]'
+          o.separator ''
+          o.separator 'Options:'
+          o.separator ''
+
+          o.on('--all', 'Expose all routes (you need to be cluster admin)') do
+            options[:all] = '--all-namespaces'
+          end
+        end
+
+        argv = parse_options(opts)
+        return unless argv
+
         with_target_vms(nil, single_target: true) do |machine|
-          machine.communicate.execute('oc get routes', sudo: false) do |type, data|
+          machine.communicate.execute("oc get routes #{options[:all]}", sudo: false) do |type, data|
             @result = data
           end
           @env.ui.info("Updating hosts file with new hostnames:\n#{routes_hostnames(@result).join(', ')}")
@@ -28,7 +47,7 @@ module VagrantPlugins
         when /.*oc: command not found.*/
           @env.ui.error('oc command was not found on guest. Is OpenShift installed?')
         else
-          @env.ui.error("Unexpected error occured:\n#{e.message}")
+          @env.ui.error("Unexpected error occured:\n\n#{e.message}")
         end
       end
 
