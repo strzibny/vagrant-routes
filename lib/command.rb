@@ -20,8 +20,9 @@ module VagrantPlugins
           o.separator 'Options:'
           o.separator ''
 
-          o.on('--all', 'Expose all routes (you need to be cluster admin)') do
-            options[:all] = '--all-namespaces'
+          o.on('--all', 'Expose all routes') do
+            # TODO: make --config option configurable
+            options[:all] = '--all-namespaces --config=/var/lib/origin/openshift.local.config/master/admin.kubeconfig'
           end
         end
 
