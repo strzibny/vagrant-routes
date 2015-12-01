@@ -16,14 +16,16 @@ $ vagrant plugin install vagrant-routes
 
 ## Usage
 
-- First start Vagrant VM with OpenShift, log in and select your project within the guest
-- Then run `vagrant route`
+Export all routes as cluster admin:
 
 ```
-$ vagrant route
+$ vagrant route --all
 Updating hosts file with new hostnames:
 pyapp-python.router.default.svc.cluster.local
 ```
+
+Otherwise you need to log in and select your project within the OpenShift guest and then run `vagrant route` on host
+
 
 Use `--help` to see all options:
 
@@ -33,6 +35,6 @@ Usage: vagrant route [options]
 
 Options:
 
-        --all                        Expose all routes (you need to be cluster admin)
+        --all                        Expose all routes
     -h, --help                       Print this help
 ```
