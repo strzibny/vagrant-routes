@@ -24,7 +24,7 @@ Updating hosts file with new hostnames:
 pyapp-python.router.default.svc.cluster.local
 ```
 
-Otherwise you need to log in and select your project within the OpenShift guest and then run `vagrant route` on host
+Otherwise you need to log in and select your project within the OpenShift guest and then run `vagrant route` on host.
 
 
 Use `--help` to see all options:
