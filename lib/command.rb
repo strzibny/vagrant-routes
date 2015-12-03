@@ -33,9 +33,9 @@ module VagrantPlugins
           machine.communicate.execute("oc get routes #{options[:all]}", sudo: false) do |type, data|
             @result = data
           end
-          @env.ui.info("Updating hosts file with new hostnames:\n#{routes_hostnames(@result).join(', ')}")
+          @env.ui.info("Updating hosts file with new hostnames:\n#{routes_hostnames(@result, options).join(', ')}")
           ip = machine.ssh_info[:host]
-          update_hosts(routes_hostnames(@result), ip)
+          update_hosts(routes_hostnames(@result, options), ip)
         end
       rescue NoRoutesError
         @env.ui.error('No routes are defined.')
@@ -95,12 +95,22 @@ module VagrantPlugins
       #   NAME      HOST/PORT                                       PATH      SERVICE   LABELS      INSECURE POLICY   TLS TERMINATION
       #   ruby20    ruby20-ruby-app.router.default.svc.cluster.local          ruby20    app=ruby20
       #   pyapp     pyapp-python.router.default.svc.cluster.local             pyapp     app=pyapp
-      def routes_hostnames(output)
+      #
+      # With --all-namespaces option this includes namespace field:
+      #
+      #   NAMESPACE   NAME        HOST/PORT                                         PATH      SERVICE     LABELS          INSECURE POLICY   TLS TERMINATION
+      #   test        ruby22app   ruby22app-test.router.default.svc.cluster.local             ruby22app   app=ruby22app        
+      #
+      def routes_hostnames(output, options)
         fail NoRoutesError unless output
         lines = output.split("\n")[1..-1]
         hostnames = []
         lines.each do |line|
-          hostnames << line.split[1]
+          if options[:all]
+            hostnames << line.split[2]
+          else
+            hostnames << line.split[1]
+          end
         end
         fail NoRoutesError if hostnames.empty?
         hostnames
